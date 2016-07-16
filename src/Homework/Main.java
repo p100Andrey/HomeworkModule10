@@ -1,64 +1,81 @@
 package Homework;
 
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.FileReader;
+import java.io.IOException;
+
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         CodingText codingText = new CodingText();
-        String text = new String("Зашифровать этот текс и поместить в файл");
-        String fileName = new String("MyFile.txt");
+        String text = "Зашифровать этот текс и поместить в файл";
+        String fileName = "MyFile.txt";
         File file = new File(fileName);
         write(file, text);
-        write(file, codingText.caesar(read(fileName, file)));
-        System.out.println(read(fileName, file));
-        write(file, codingText.caesarDeshifrator(read(fileName, file)));
-        System.out.println(read(fileName, file));
+        String fileNameCoded = "fileNameCoded.txt";
+        File fileCoded = new File(fileNameCoded);
+        String fileNameDeCoded = "fileNameDeCoded.txt";
+        File fileDecoded = new File(fileNameDeCoded);
+        String textCoded = codingText.caesar(read(fileName, file));
+        write(fileCoded, textCoded);
+        System.out.println(read(fileNameCoded, fileCoded));
+        String textDeCoded = codingText.caesarDeshifrator(read(fileNameCoded, fileCoded));
+        write(fileDecoded, textDeCoded);
+        System.out.println(read(fileNameDeCoded, fileDecoded));
     }
 
-    public static void write(File file, String text) throws FileNotFoundException {
+    private static void write(File file, String text) {
 
         if (!file.exists()) {
-            System.out.println("Такого файла не существует!");
-        } else {
-            PrintWriter out = new PrintWriter(file.getAbsoluteFile());
-
-            out.print(text);
-            out.close();
+            try {
+                System.out.println("Файла с таким названием не существует! Создаем данный файл.");
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        out.print(text);
+        out.close();
     }
 
-    public static String read(String fileName, File file) throws FileNotFoundException {
-        StringBuilder sb = new StringBuilder();
 
+    private static String read(String fileName, File file) {
+        String sb = new String();
         exists(fileName);
 
         try {
             BufferedReader in = new BufferedReader(new FileReader(file.getAbsoluteFile()));
-            try {
-                String s;
-                while ((s = in.readLine()) != null) {
-                    sb.append(s);
-                    sb.append("\n");
-                }
-            } finally {
-                in.close();
+            String s;
+            while ((s = in.readLine()) != null) {
+                sb = sb + s + "\n";
             }
+            in.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return sb.toString();
     }
 
-    public static void delete(String nameFile) throws FileNotFoundException {
-        exists(nameFile);
-        new File(nameFile).delete();
-    }
-
-    private static void exists(String fileName) throws FileNotFoundException {
+    private static void exists(String fileName) {
         File file = new File(fileName);
         if (!file.exists()) {
-            throw new FileNotFoundException(file.getName());
+            try {
+                throw new FileNotFoundException(file.getName());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
